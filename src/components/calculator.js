@@ -1,9 +1,14 @@
 import { BUTTONS } from "../data/constants.js";
+import {
+  calculatorReducer,
+  initialState,
+} from "../reducers/calculatorReducer.js";
 
 export class Calculator {
   constructor(screenSelector, buttonsContainerSelector) {
     this.screen = document.querySelector(screenSelector);
     this.buttonsContainer = document.querySelector(buttonsContainerSelector);
+    this.state = initialState;
     this.init();
   }
 
@@ -30,33 +35,42 @@ export class Calculator {
 
   handleButtonClick(e) {
     e.preventDefault();
+
     if (e.target.tagName !== "BUTTON") return;
 
     const selectedValue = e.target.innerText;
     const selectedAction = e.target.getAttribute("data-action");
 
+    let actionType;
     switch (selectedAction) {
+      case "number":
+        actionType = "NUMBER_INPUT";
+        break;
+      case "operator":
+        actionType = "OPERATOR_INPUT";
+        break;
+      case "other":
+        actionType = "OTHER_INPUT";
+        break;
       case "delete-last":
-        this.deletePreviousValue();
+        actionType = "DELETE_LAST";
         break;
       case "clear-all":
-        this.clearAll();
+        actionType = "CLEAR_ALL";
         break;
       case "equals":
-        console.log(selectedValue, selectedAction);
+        actionType = "EQUALS";
         break;
       default:
-        this.screen.value += selectedValue;
-        return;
+        actionType = "UNKNOWN";
     }
+
+    const action = { type: actionType, value: selectedValue };
+    this.state = calculatorReducer(this.state, action);
+    this.updateScreenValue(this.state.screenValue);
   }
 
-  deletePreviousValue() {
-    this.screen.value !== "0" &&
-      (this.screen.value = this.screen.value.slice(0, -1));
-  }
-
-  clearAll() {
-    this.screen.value = "0";
+  updateScreenValue(result) {
+    this.screen.value = result || "0";
   }
 }

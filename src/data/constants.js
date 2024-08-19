@@ -19,3 +19,5 @@ export const BUTTONS = [
   { value: ".", class: "btn", action: "other" },
   { value: "=", class: "btn", action: "equals" },
 ];
+
+export const OPERATORS = ["/", "×", "-", "+"];
